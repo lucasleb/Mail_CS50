@@ -35,54 +35,38 @@ function load_mailbox(mailbox) {
 
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`
 
-
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-display').style.display = 'none';
 
-
   // Fetch emails
   fetch('/emails/'+mailbox)
   .then(response => response.json())
   .then(emails => {
-      // Print emails
       console.log(emails);
-
-      // Create a div for each email and display the sender, subject and timestamp information
-
-      
-      let emailHTML = "";
       for (let email of emails) {
         console.log(email.read);
 
-        let bgColor = (email.read == true) ? 'read' :'unread';
         let date = new Date(email.timestamp);
         let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
         let timeString = date.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit", hour12: true});
 
         const element = document.createElement('div');
-        element.innerHTML = `<div class="email-item ${bgColor}" >                          
-                          <div class="from"> ${email.sender}</div>
+        element.classList.add('email-item');
+        let bgColor = (email.read == true) ? 'read' :'unread';
+        if (email.read == true) {
+          element.classList.add("read");
+        } else {element.classList.add("unread")};
+
+        element.innerHTML = `<div class="from"> ${email.sender}</div>
                           <div class="subject"> ${email.subject}</div>
-                          <div class="timestamp">${dateString}, ${timeString}</div>                          
-                          </div>`;
-        element.addEventListener('click', function() {
-          console.log(email.id)
-        });
+                          <div class="timestamp">${dateString}, ${timeString}</div>`;
+        element.addEventListener('click', () => email_display(email.id));
         document.querySelector('#emails-view').append(element);                
       }
-
-      // document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>` + emailHTML;
-      // document.querySelector('#email-item').addEventListener('click', function() {
-      //   console.log('This element has been clicked!')
-      // });
-
     });
-  
 }
-
-
 
 
 
@@ -112,16 +96,47 @@ function send_email(event) {
 
   //Go to Sent mailbox
   load_mailbox('sent');
+};
+
+
+
+function email_display(id) {
+
+  document.querySelector('#email-display').innerHTML = '';
+
+
+  // Show compose view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-display').style.display = 'block';
+
+  fetch('/emails/'+id)
+  .then(response => response.json())
+  .then(email => {
+      console.log(email);
+
+      let date = new Date(email.timestamp);
+      let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
+      let timeString = date.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit", hour12: true});
+
+      const element = document.createElement('div');
+        let bgColor = (email.read == true) ? 'read' :'unread';
+
+        element.innerHTML = `<div class="from"> <b>From:</b> ${email.sender}</div>
+                            <div class="from"> <b>To:</b> ${email.recipients}</div>
+
+                          <div class="subject"> <b>Subject</b>: ${email.subject}</div>
+                          <div class="timestamp"> <b>Sent on</b>: ${dateString}, ${timeString}</div>
+                          <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
+                          <hr>
+                          <div class="subject"> ${email.body}</div>
+                          `;
+                          
+        document.querySelector('#email-display').append(element);   
+
+
+
+
+
+    });
 }
-
-
-
-// function email-display() {
-
-//   // Show compose view and hide other views
-//   document.querySelector('#emails-view').style.display = 'none';
-//   document.querySelector('#compose-view').style.display = 'none';
-//   document.querySelector('#email-display').style.display = 'block';
-
-
-// }
