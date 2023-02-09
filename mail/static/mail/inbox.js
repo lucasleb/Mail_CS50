@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
+
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').addEventListener('submit', send_email);
+  // document.querySelector('#emails-view').addEventListener('submit', archive);
+
 
 
   // By default, load the inbox
@@ -35,6 +38,15 @@ function load_mailbox(mailbox) {
 
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`
 
+  if (mailbox == "inbox") {
+    const element = document.createElement('div');
+    element.innerHTML = `
+                        <button class="btn btn-sm btn-outline-primary" type="submit" id="archive">ARCHIVE</button>
+                          `;
+    document.querySelector('#emails-view').append(element); 
+  }
+
+
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
@@ -54,15 +66,22 @@ function load_mailbox(mailbox) {
 
         const element = document.createElement('div');
         element.classList.add('email-item');
-        let bgColor = (email.read == true) ? 'read' :'unread';
         if (email.read == true) {
           element.classList.add("read");
         } else {element.classList.add("unread")};
 
-        element.innerHTML = `<div class="from"> ${email.sender}</div>
-                          <div class="subject"> ${email.subject}</div>
-                          <div class="timestamp">${dateString}, ${timeString}</div>`;
-        element.addEventListener('click', () => email_display(email.id));
+        element.innerHTML = `
+                           <input type="checkbox" name="selected" value="${email.id}">
+
+                          <div class="from clickable"> ${email.sender}</div>
+                          <div class="subject clickable"> ${email.subject}</div>
+                          <div class="timestamp clickable">${dateString}, ${timeString}</div>
+                          
+                          `;
+        const clickables = element.querySelectorAll('.clickable');
+        for (let clickable of clickables) {
+          clickable.addEventListener('click', () => email_display(email.id));
+        }
         document.querySelector('#emails-view').append(element);                
       }
     });

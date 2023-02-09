@@ -15,6 +15,10 @@ textarea {
     
 }
 
+.email-item .clickable:hover{
+    cursor: pointer;
+} 
+
 .email-item .from {
     min-width: 170px;
     white-space: nowrap;
@@ -27,13 +31,18 @@ textarea {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+    width: 100%;
+}
 
 .email-item .timestamp {
-    min-width: 175px;
+    min-width: 180px;
     text-align: right;
     margin-left:auto;
     color: grey;
+}
+
+.email-item input {
+    margin-right: 4px;
 }
 
 .read {

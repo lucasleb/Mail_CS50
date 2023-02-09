@@ -11,8 +11,9 @@
     <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
     <hr>
 
-    <div id="emails-view">
-    </div>
+    <form id="emails-view">
+
+    </form>
 
     <div id="compose-view">
         <h3>New Email</h3>
@@ -39,3 +40,5 @@
 {% block script %}
     <script src="{% static 'mail/inbox.js' %}"></script>
 {% endblock %}
+
+
