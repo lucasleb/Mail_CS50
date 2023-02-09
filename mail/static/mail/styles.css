@@ -1,5 +1,6 @@
 body {
     padding: 10px;
+    font-family: Arial, sans-serif;
 }
 
 textarea {
@@ -11,9 +12,27 @@ textarea {
     padding: 5px;
     display: flex;
     justify-content: flex-start;
+    border-bottom: none;
+
     
     
 }
+
+.email-item:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+
+
+}
+
+
+.email-item:last-child {
+    border-bottom: 1px solid black;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    
+}
+
 
 .email-item .clickable:hover{
     cursor: pointer;
@@ -48,3 +67,13 @@ textarea {
 .read {
     background-color: rgb(224, 224, 224);
 }
+
+.actions {
+    margin-bottom: 10px;
+}
+
+
+pre {
+    font-family: Arial, sans-serif;
+    font-size: 100%;
+  }

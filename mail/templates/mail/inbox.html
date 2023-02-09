@@ -8,7 +8,7 @@
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
     <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
     <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
+    <a class="btn btn-sm btn-outline-danger" href="{% url 'logout' %}">Log Out</a>
     <hr>
 
     <form id="emails-view">
@@ -33,8 +33,10 @@
     </div>
 
     <div id="email-display">
-        
     </div>
+
+
+
 {% endblock %}
 
 {% block script %}

@@ -25,6 +25,7 @@ function compose_email() {
   document.querySelector('#email-display').style.display = 'none';
 
 
+
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
@@ -41,6 +42,7 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-display').style.display = 'none';
 
+
   document.querySelector('#emails-view').innerHTML = 
   `
   <h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>
@@ -49,9 +51,11 @@ function load_mailbox(mailbox) {
   if (mailbox == "inbox")  {
     const element = document.createElement('div');
     element.innerHTML = `
-    <input type="button" onclick='selects()' value="Select All"/>  
-    <input type="button" onclick='deSelect()' value="Deselect All"/> 
-    <input type="submit" class="btn btn-primary" id="archive" value="Archive"/>
+    <div class="actions">
+    <input type="button" class="btn btn-secondary" onclick='selects()' value="Select All"/>  
+    <input type="button" class="btn btn-secondary" onclick='deSelect()' value="Deselect All"/> 
+    <input type="submit" class="btn btn-primary" id="archive" value="Archive"/> 
+    </div>
     `;
     document.querySelector('#emails-view').append(element); 
   }
@@ -59,9 +63,11 @@ function load_mailbox(mailbox) {
   if (mailbox == "archive")  {
     const element = document.createElement('div');
     element.innerHTML = `
-    <input type="button" onclick='selects()' value="Select All"/>  
-    <input type="button" onclick='deSelect()' value="Deselect All"/> 
-    <input type="submit" class="btn btn-primary"  id="archive" value="Remove from Archive"/>
+    <div class="actions">
+    <input type="button" class="btn btn-secondary" onclick='selects()' value="Select All"/>  
+    <input type="button" class="btn btn-secondary" onclick='deSelect()' value="Deselect All"/> 
+    <input type="submit" class="btn btn-primary" id="archive" value="Remove from Archive"/> 
+    </div>
     `;
     document.querySelector('#emails-view').append(element); 
   }
@@ -73,7 +79,7 @@ function load_mailbox(mailbox) {
       for (let email of emails) {
 
         let date = new Date(email.timestamp);
-        let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
+        let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"}).replace(',','');
         let timeString = date.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit", hour12: true});
 
         const element = document.createElement('div');
@@ -96,7 +102,16 @@ function load_mailbox(mailbox) {
         }
         document.querySelector('#emails-view').append(element);                
       }
+
+      if (mailbox == "sent")  {
+        const elements = document.querySelectorAll('[name="selected"]');
+        elements.forEach(element => {
+          element.style.display = 'none';
+        });
+      }
     });
+
+
 }
 
 
@@ -121,12 +136,18 @@ function send_email(event) {
   })
   .then(response => response.json())
   .then(result => {
-      // Print result
-      // console.log(result);
+
+    console.log(result);
+    if (result.error) {
+      alert(result.error)
+    } else {
+      load_mailbox('sent');
+    }
+
   });
 
-  //Go to Sent mailbox
-  load_mailbox('sent');
+
+  
 };
 
 
@@ -141,13 +162,14 @@ function email_display(id) {
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-display').style.display = 'block';
 
+
   fetch('/emails/'+id)
   .then(response => response.json())
   .then(email => {
-      // console.log(email);
+      console.log(email.body);
 
       let date = new Date(email.timestamp);
-      let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
+      let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"}).replace(',','');
       let timeString = date.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit", hour12: true});
 
       const element = document.createElement('div');
@@ -160,9 +182,37 @@ function email_display(id) {
                           <div class="timestamp"> <b>Sent on</b>: ${dateString}, ${timeString}</div>
                           <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
                           <hr>
-                          <div class="subject"> ${email.body}</div>
+                          <pre class="subject"> ${email.body}</pre>
                           `;
-                          
+        const btnreply = element.querySelector('#reply');
+        
+        btnreply.addEventListener('click', function() {
+          compose_email();
+
+          let recipient = email.sender;
+          let subject = email.subject;
+          
+          let body = email.body;
+
+          let line = "---";
+        
+          let pre =  "On " + dateString + ", " + timeString + " " + recipient + " wrote: ";
+        
+        
+          if (!subject.startsWith("Re: ")) {
+            subject = "Re: " + subject;
+          }
+        
+
+          // prefill fields
+          document.querySelector('#compose-recipients').value = recipient;
+          document.querySelector('#compose-subject').value = subject;
+          document.querySelector('#compose-body').value = '\r\n\r\n\r\n' + line + '\r\n' + pre + '\r\n\r\n' + body;
+
+
+
+        });
+                      
         document.querySelector('#email-display').append(element);   
     });
 
@@ -174,6 +224,19 @@ function email_display(id) {
     })
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 async function archive(event) {
@@ -216,3 +279,5 @@ function deSelect(){
         
   }  
 }   
+
+
