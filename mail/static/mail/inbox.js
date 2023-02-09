@@ -133,10 +133,13 @@ function email_display(id) {
                           `;
                           
         document.querySelector('#email-display').append(element);   
-
-
-
-
-
     });
+
+    fetch('/emails/'+id, {
+      method: 'PUT',
+      body: JSON.stringify({
+          read: true
+      })
+    })
+
 }
