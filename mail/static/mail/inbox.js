@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').addEventListener('submit', send_email);
-  // document.querySelector('#emails-view').addEventListener('submit', archive);
+  document.querySelector('#emails-view').addEventListener('submit', archive);
 
 
 
@@ -36,29 +36,41 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
 
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`
-
-  if (mailbox == "inbox") {
-    const element = document.createElement('div');
-    element.innerHTML = `
-                        <button class="btn btn-sm btn-outline-primary" type="submit" id="archive">ARCHIVE</button>
-                          `;
-    document.querySelector('#emails-view').append(element); 
-  }
-
-
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-display').style.display = 'none';
 
+  document.querySelector('#emails-view').innerHTML = 
+  `
+  <h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>
+  `
+
+  if (mailbox == "inbox")  {
+    const element = document.createElement('div');
+    element.innerHTML = `
+    <input type="button" onclick='selects()' value="Select All"/>  
+    <input type="button" onclick='deSelect()' value="Deselect All"/> 
+    <input type="submit" class="btn btn-primary" id="archive" value="Archive"/>
+    `;
+    document.querySelector('#emails-view').append(element); 
+  }
+
+  if (mailbox == "archive")  {
+    const element = document.createElement('div');
+    element.innerHTML = `
+    <input type="button" onclick='selects()' value="Select All"/>  
+    <input type="button" onclick='deSelect()' value="Deselect All"/> 
+    <input type="submit" class="btn btn-primary"  id="archive" value="Remove from Archive"/>
+    `;
+    document.querySelector('#emails-view').append(element); 
+  }
+
   // Fetch emails
   fetch('/emails/'+mailbox)
   .then(response => response.json())
   .then(emails => {
-      console.log(emails);
       for (let email of emails) {
-        console.log(email.read);
 
         let date = new Date(email.timestamp);
         let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
@@ -110,7 +122,7 @@ function send_email(event) {
   .then(response => response.json())
   .then(result => {
       // Print result
-      console.log(result);
+      // console.log(result);
   });
 
   //Go to Sent mailbox
@@ -132,7 +144,7 @@ function email_display(id) {
   fetch('/emails/'+id)
   .then(response => response.json())
   .then(email => {
-      console.log(email);
+      // console.log(email);
 
       let date = new Date(email.timestamp);
       let dateString = date.toLocaleDateString("en-US", {day: "2-digit", month: 'short', year: "numeric"});
@@ -162,3 +174,45 @@ function email_display(id) {
     })
 
 }
+
+
+async function archive(event) {
+  // Prevent from submitting
+  event.preventDefault();
+  
+  var button = document.querySelector('#archive').value
+  const action = button == "Archive" ? true : false
+  const redirect = button == "Archive" ? "inbox" : "archive"
+  
+  console.log(redirect);
+  
+  var selecteds = document.querySelectorAll('input[type="checkbox"]:checked');
+  const promises = [];
+  for (var selected of selecteds) {
+    id = selected.value
+    promises.push(fetch('/emails/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+      archived: action
+    })
+    }));
+  }
+  await Promise.all(promises);
+  load_mailbox(redirect);
+}
+
+function selects(){  
+  var ele=document.getElementsByName('selected');  
+  for(var i=0; i<ele.length; i++){  
+      if(ele[i].type=='checkbox')  
+          ele[i].checked=true;  
+  }  
+}  
+function deSelect(){  
+  var ele=document.getElementsByName('selected');  
+  for(var i=0; i<ele.length; i++){  
+      if(ele[i].type=='checkbox')  
+          ele[i].checked=false;  
+        
+  }  
+}   
