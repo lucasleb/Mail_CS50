@@ -1,3 +1,41 @@
+body {
+    padding: 10px;
+}
+
 textarea {
     min-height: 400px;
+}
+
+.email-item {
+    border: 1px solid black;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-start;
+    
+    
+}
+
+.email-item .from {
+    min-width: 170px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+.email-item .subject {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+.email-item .timestamp {
+    min-width: 175px;
+    text-align: right;
+    margin-left:auto;
+    color: grey;
+}
+
+.read {
+    background-color: rgb(224, 224, 224);
 }
